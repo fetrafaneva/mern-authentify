@@ -155,7 +155,6 @@ export const sendVerifyOtp = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    // 400 - Bad Request
     if (!userId) {
       return res.status(400).json({
         success: false,
@@ -165,7 +164,6 @@ export const sendVerifyOtp = async (req, res) => {
 
     const user = await userModel.findById(userId);
 
-    // 404 - Not Found
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -173,7 +171,6 @@ export const sendVerifyOtp = async (req, res) => {
       });
     }
 
-    // 400 - Bad Request
     if (user.isAccountVerified) {
       return res.status(400).json({
         success: false,
@@ -181,7 +178,6 @@ export const sendVerifyOtp = async (req, res) => {
       });
     }
 
-    // Generate OTP
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
     user.verifyOtp = otp;
@@ -191,14 +187,13 @@ export const sendVerifyOtp = async (req, res) => {
 
     const mailOptions = {
       from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
-      to: user.email, // ✅ correction ici
+      to: user.email,
       subject: "Account Verification OTP",
       text: `Your OTP is ${otp}. It will expire in 24 hours.`,
     };
 
     await transporter.sendMail(mailOptions);
 
-    // 200 - OK
     return res.status(200).json({
       success: true,
       message: "Verification OTP sent to email",
@@ -206,7 +201,6 @@ export const sendVerifyOtp = async (req, res) => {
   } catch (error) {
     console.error("Send OTP Error:", error);
 
-    // 500 - Internal Server Error
     return res.status(500).json({
       success: false,
       message: "Server error. Please try again later.",
@@ -218,7 +212,6 @@ export const sendVerifyOtp = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   const { userId, otp } = req.body;
 
-  // 400 → données manquantes
   if (!userId || !otp) {
     return res.status(400).json({
       success: false,
@@ -229,7 +222,6 @@ export const verifyEmail = async (req, res) => {
   try {
     const user = await userModel.findById(userId);
 
-    // 404 → utilisateur introuvable
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -237,7 +229,6 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    // 400 → OTP invalide
     if (!user.verifyOtp || user.verifyOtp !== otp) {
       return res.status(400).json({
         success: false,
@@ -245,7 +236,6 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    // 400 → OTP expiré
     if (user.verifyOtpExpireAt < Date.now()) {
       return res.status(400).json({
         success: false,
@@ -253,14 +243,12 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    // Succès
     user.isAccountVerified = true;
     user.verifyOtp = "";
     user.verifyOtpExpireAt = null;
 
     await user.save();
 
-    // 200 → succès
     return res.status(200).json({
       success: true,
       message: "Email verified successfully",
@@ -268,7 +256,6 @@ export const verifyEmail = async (req, res) => {
   } catch (error) {
     console.error("VERIFY EMAIL ERROR ❌", error);
 
-    // 500 → erreur serveur
     return res.status(500).json({
       success: false,
       message: "Server error",
