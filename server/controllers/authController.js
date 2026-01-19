@@ -149,39 +149,72 @@ export const logout = async (req, res) => {
   }
 };
 
+//---------------  sendVerifyOtp  -------------//
 // Send Verification OTP to the User's Email
 export const sendVerifyOtp = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    const user = await userModel.findById(userId);
-
-    if (user.isAccountVerified) {
-      return res.json({ success: false, message: "Account Already verified" });
+    // 400 - Bad Request
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
     }
 
+    const user = await userModel.findById(userId);
+
+    // 404 - Not Found
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 400 - Bad Request
+    if (user.isAccountVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Account already verified",
+      });
+    }
+
+    // Generate OTP
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
     user.verifyOtp = otp;
-    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
+    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24h
 
     await user.save();
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
+      from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
+      to: user.email, // ✅ correction ici
       subject: "Account Verification OTP",
-      text: `Your OTP is ${otp}. Verify your account using this OTP.`,
+      text: `Your OTP is ${otp}. It will expire in 24 hours.`,
     };
 
     await transporter.sendMail(mailOptions);
 
-    res.json({ success: true, message: "Verification Sent on Email" });
+    // 200 - OK
+    return res.status(200).json({
+      success: true,
+      message: "Verification OTP sent to email",
+    });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    console.error("Send OTP Error:", error);
+
+    // 500 - Internal Server Error
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
   }
 };
 
+//---------------  verifyEmail  -------------//
 export const verifyEmail = async (req, res) => {
   const { userId, otp } = req.body;
 
