@@ -55,7 +55,7 @@ export const register = async (req, res) => {
     // Sending welcome email
     const mailOptions = {
       from: "fetrafaneva@gmail.com",
-      to: email,
+      to: "fetrafaneva@gmail.com",
       subject: "Welcome to Shining Prism",
       text: `Welcome to Shining Prism website. Your account have been created with email id: ${email}`,
     };
@@ -146,5 +146,22 @@ export const logout = async (req, res) => {
       success: false,
       message: "Server error",
     });
+  }
+};
+
+// Send Verification OTP to the User's Email
+export const sendVerifyOtp = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await userModel.findById(userId);
+
+    if (user.isAccountVerified) {
+      return res.json({ success: false, message: "Account Already verified" });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+  } catch (error) {
+    res.json({ success: false, message: error.message });
   }
 };
