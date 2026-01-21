@@ -153,7 +153,7 @@ export const logout = async (req, res) => {
 // Send Verification OTP to the User's Email
 export const sendVerifyOtp = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId; // récupéré depuis le middleware
 
     if (!userId) {
       return res.status(400).json({
@@ -210,12 +210,13 @@ export const sendVerifyOtp = async (req, res) => {
 
 //---------------  verifyEmail  -------------//
 export const verifyEmail = async (req, res) => {
-  const { userId, otp } = req.body;
+  const userId = req.userId; // ✅ vient du middleware JWT
+  const { otp } = req.body;
 
   if (!userId || !otp) {
     return res.status(400).json({
       success: false,
-      message: "UserId and OTP are required",
+      message: "OTP is required",
     });
   }
 
@@ -232,14 +233,14 @@ export const verifyEmail = async (req, res) => {
     if (!user.verifyOtp || user.verifyOtp !== otp) {
       return res.status(400).json({
         success: false,
-        message: "Invalid OTP",
+        message: "OTP invalid",
       });
     }
 
     if (user.verifyOtpExpireAt < Date.now()) {
       return res.status(400).json({
         success: false,
-        message: "OTP expired",
+        message: "OTP expire",
       });
     }
 
@@ -251,11 +252,10 @@ export const verifyEmail = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Email verified successfully",
+      message: "Email has been successfully verified",
     });
   } catch (error) {
     console.error("VERIFY EMAIL ERROR ❌", error);
-
     return res.status(500).json({
       success: false,
       message: "Server error",
