@@ -280,3 +280,57 @@ export const isAuthenticated = (req, res) => {
     });
   }
 };
+
+// Send Password Reset OTP
+export const sendResetOtp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+
+  try {
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Générer un OTP à 6 chiffres
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    // Définir OTP et expiration
+    user.resetOtp = otp;
+    user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    // Configurer l’email
+    const mailOptions = {
+      from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for resetting your password is ${otp}. It is valid for 15 minutes.`,
+    };
+
+    // Envoyer l’email
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP has been sent to your email",
+    });
+  } catch (error) {
+    console.error("SEND RESET OTP ERROR ❌", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
