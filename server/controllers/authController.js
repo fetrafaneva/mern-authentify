@@ -208,7 +208,7 @@ export const sendVerifyOtp = async (req, res) => {
   }
 };
 
-//---------------  verifyEmail  -------------//
+// Verify the Email using the OTP
 export const verifyEmail = async (req, res) => {
   const userId = req.userId; // ✅ vient du middleware JWT
   const { otp } = req.body;
@@ -259,6 +259,140 @@ export const verifyEmail = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error",
+    });
+  }
+};
+
+// Check if user is authentificated
+export const isAuthenticated = (req, res) => {
+  try {
+    // Si cette route est atteinte, le middleware a déjà validé le JWT
+    return res.status(200).json({
+      success: true,
+      message: "User is authenticated",
+    });
+  } catch (error) {
+    console.error("AUTH CHECK ERROR ❌", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// Send Password Reset OTP
+export const sendResetOtp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+
+  try {
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Générer un OTP à 6 chiffres
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    // Définir OTP et expiration
+    user.resetOtp = otp;
+    user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    // Configurer l’email
+    const mailOptions = {
+      from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for resetting your password is ${otp}. It is valid for 15 minutes.`,
+    };
+
+    // Envoyer l’email
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP has been sent to your email",
+    });
+  } catch (error) {
+    console.error("SEND RESET OTP ERROR ❌", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// Reset User Password
+export const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // 400 – Bad Request si champs manquants
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Email, OTP, and new password are required",
+    });
+  }
+
+  try {
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Vérifier OTP
+    if (!user.resetOtp || user.resetOtp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    // Vérifier expiration OTP
+    if (user.resetOtpExpireAt < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    // Hasher le nouveau mot de passe
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Mettre à jour le mot de passe et réinitialiser l'OTP
+    user.password = hashedPassword;
+    user.resetOtp = "";
+    user.resetOtpExpireAt = 0;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully",
+    });
+  } catch (error) {
+    console.error("RESET PASSWORD ERROR ❌", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };
