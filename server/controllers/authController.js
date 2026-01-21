@@ -208,7 +208,7 @@ export const sendVerifyOtp = async (req, res) => {
   }
 };
 
-//---------------  verifyEmail  -------------//
+// Verify the Email using the OTP
 export const verifyEmail = async (req, res) => {
   const userId = req.userId; // ✅ vient du middleware JWT
   const { otp } = req.body;
@@ -259,6 +259,24 @@ export const verifyEmail = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error",
+    });
+  }
+};
+
+// Check if user is authentificated
+export const isAuthenticated = (req, res) => {
+  try {
+    // Si cette route est atteinte, le middleware a déjà validé le JWT
+    return res.status(200).json({
+      success: true,
+      message: "User is authenticated",
+    });
+  } catch (error) {
+    console.error("AUTH CHECK ERROR ❌", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };
