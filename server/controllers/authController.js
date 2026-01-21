@@ -302,15 +302,12 @@ export const sendResetOtp = async (req, res) => {
       });
     }
 
-    // Générer un OTP à 6 chiffres
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
-    // Définir OTP et expiration
     user.resetOtp = otp;
     user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
-    // Configurer l’email
     const mailOptions = {
       from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
       to: user.email,
@@ -318,7 +315,6 @@ export const sendResetOtp = async (req, res) => {
       text: `Your OTP for resetting your password is ${otp}. It is valid for 15 minutes.`,
     };
 
-    // Envoyer l’email
     await transporter.sendMail(mailOptions);
 
     return res.status(200).json({
@@ -339,7 +335,6 @@ export const sendResetOtp = async (req, res) => {
 export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
-  // 400 – Bad Request si champs manquants
   if (!email || !otp || !newPassword) {
     return res.status(400).json({
       success: false,
@@ -357,7 +352,6 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // Vérifier OTP
     if (!user.resetOtp || user.resetOtp !== otp) {
       return res.status(400).json({
         success: false,
@@ -365,7 +359,6 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // Vérifier expiration OTP
     if (user.resetOtpExpireAt < Date.now()) {
       return res.status(400).json({
         success: false,
@@ -373,10 +366,8 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // Hasher le nouveau mot de passe
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Mettre à jour le mot de passe et réinitialiser l'OTP
     user.password = hashedPassword;
     user.resetOtp = "";
     user.resetOtpExpireAt = 0;
