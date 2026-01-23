@@ -51,7 +51,28 @@ const Login = () => {
               required
             />
           </div>
+
+          <p className=" mb-4 text-indigo-500 cursor-pointer">
+            Forgot password?
+          </p>
+
+          <button className=" w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium">
+            {state}
+          </button>
         </form>
+        <p className=" text-gray-400 text-center text-xs mt-4">
+          Alredy have an account?{" "}
+          <span className=" text-blue-400 cursor-pointer underline">
+            Login here
+          </span>
+        </p>
+
+        <p className=" text-gray-400 text-center text-xs mt-4">
+          Don't have an account?{" "}
+          <span className=" text-blue-400 cursor-pointer underline">
+            Sign up
+          </span>
+        </p>
       </div>
     </div>
   );
