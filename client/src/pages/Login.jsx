@@ -1,13 +1,42 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { backendUrl, setIsLoggedin } = useContext(AppContext);
   const [state, setState] = useState("Sign Up");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+
+    const url = state === "Sign Up" ? "/api/auth/register" : "/api/auth/login";
+
+    const payload =
+      state === "Sign Up" ? { name, email, password } : { email, password };
+
+    try {
+      const { data } = await axios.post(`${backendUrl}${url}`, payload);
+
+      if (!data.success) {
+        return toast.error(data.message);
+      }
+
+      setIsLoggedin(true);
+      navigate("/");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Unable to authenticate. Please try again.";
+
+      toast.error(message);
+    }
+  };
 
   return (
     <div className=" flex flex-col items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
@@ -27,7 +56,7 @@ const Login = () => {
             : "Login to your account!"}
         </p>
 
-        <form>
+        <form onSubmit={onSubmitHandler}>
           {state === "Sign Up" && (
             <div className=" mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
               <img src={assets.person_icon} alt="" />
