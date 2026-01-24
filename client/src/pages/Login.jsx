@@ -2,16 +2,17 @@ import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
 import { toast } from "react-toastify";
+import api from "../config/axios";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { backendUrl, setIsLoggedin } = useContext(AppContext);
+  const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContext);
   const [state, setState] = useState("Sign Up");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
@@ -21,13 +22,14 @@ const Login = () => {
       state === "Sign Up" ? { name, email, password } : { email, password };
 
     try {
-      const { data } = await axios.post(`${backendUrl}${url}`, payload);
+      const { data } = await api.post(url, payload);
 
       if (!data.success) {
         return toast.error(data.message);
       }
 
       setIsLoggedin(true);
+      await getUserData();
       navigate("/");
     } catch (error) {
       const message =
