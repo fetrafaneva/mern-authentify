@@ -1,7 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { assets } from "../assets/assets";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const EmailVerify = () => {
+  axios.defaults.withCredentials = true;
+  const { backendUrl, isLoggedin, userData, getUserData } =
+    useContext(AppContext);
+  const navigate = useNavigate();
   const inputRefs = React.useRef([]);
 
   const handleInput = (e, index) => {
@@ -26,6 +34,32 @@ const EmailVerify = () => {
       }
     });
   };
+
+  const onSubmitHandler = async (e) => {
+    try {
+      e.preventDefault();
+
+      const otpArray = inputRefs.current.map((e) => e.value);
+      const otp = otpArray.join("");
+
+      const { data } = await axios.post(
+        backendUrl + "/api/auth/verify-account",
+        { otp },
+        { withCredentials: true } // ✅ IMPORTANT
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        getUserData();
+        navigate("/");
+        console.log("OTP SENT:", otp);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
   return (
     <div className=" flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-400">
       <img
@@ -36,7 +70,7 @@ const EmailVerify = () => {
       />
 
       <form
-        action=""
+        onSubmit={onSubmitHandler}
         className=" bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
       >
         <h1 className=" text-white text-2xl font-semibold text-center mb-4">
