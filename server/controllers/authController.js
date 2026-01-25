@@ -272,7 +272,7 @@ export const isAuthenticated = (req, res) => {
       message: "User is authenticated",
     });
   } catch (error) {
-    console.error("AUTH CHECK ERROR ❌", error);
+    console.error("AUTH CHECK ERROR ", error);
 
     return res.status(500).json({
       success: false,
