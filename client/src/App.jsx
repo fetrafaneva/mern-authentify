@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import EmailVerify from "./pages/EmailVerify";
 import ResetPassword from "./pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
+import RequireUnverifiedUser from "./routes/RequireUnverifiedUser";
 
 const App = () => {
   return (
@@ -13,7 +14,17 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/email-verify" element={<EmailVerify />} />
+
+        {/* 🔐 PROTECTION ICI */}
+        <Route
+          path="/email-verify"
+          element={
+            <RequireUnverifiedUser>
+              <EmailVerify />
+            </RequireUnverifiedUser>
+          }
+        />
+
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </div>

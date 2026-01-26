@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { assets } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
@@ -60,6 +60,10 @@ const EmailVerify = () => {
       toast.error(error.message);
     }
   };
+
+  useEffect(() => {
+    isLoggedin && userData && userData.isAccountVerified && navigate("/");
+  }, [isLoggedin, userData]);
   return (
     <div className=" flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-400">
       <img
