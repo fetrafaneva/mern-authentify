@@ -22,7 +22,7 @@ const userAuth = (req, res, next) => {
       });
     }
 
-    // Stocker l'id utilisateur dans req (bonne pratique)
+    // Stocker l'id utilisateur dans req
     req.userId = decoded.id;
 
     next();
