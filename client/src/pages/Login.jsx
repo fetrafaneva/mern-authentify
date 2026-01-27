@@ -8,13 +8,15 @@ import api from "../config/axios";
 const Login = () => {
   const navigate = useNavigate();
   const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContext);
-  const [state, setState] = useState("Sign Up");
+  const [state, setState] = useState("Login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const url = state === "Sign Up" ? "/api/auth/register" : "/api/auth/login";
 
@@ -25,7 +27,8 @@ const Login = () => {
       const { data } = await api.post(url, payload);
 
       if (!data.success) {
-        return toast.error(data.message);
+        toast.error(data.message);
+        return;
       }
 
       setIsLoggedin(true);
@@ -37,6 +40,8 @@ const Login = () => {
         "Unable to authenticate. Please try again.";
 
       toast.error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,8 +109,26 @@ const Login = () => {
             Forgot password?
           </p>
 
-          <button className=" w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium">
-            {state}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`relative w-full py-2.5 rounded-full overflow-hidden text-white
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-gradient-to-r from-indigo-500 to-indigo-900"
+    }`}
+          >
+            {loading ? (
+              <>
+                <span className="relative z-10">
+                  {state === "Sign Up" ? "Signing up..." : "Logging in..."}
+                </span>
+                <span className="absolute inset-0 bg-indigo-500 animate-pulse"></span>
+              </>
+            ) : (
+              state
+            )}
           </button>
         </form>
 
