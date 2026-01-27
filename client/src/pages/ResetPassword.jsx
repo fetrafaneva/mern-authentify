@@ -15,6 +15,7 @@ const ResetPassword = () => {
   const [isEmailSent, setIsEmailSent] = useState("");
   const [otp, setOtp] = useState(0);
   const [isOtpSubmited, setIsOtpSubmited] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const inputRefs = React.useRef([]);
 
@@ -43,6 +44,7 @@ const ResetPassword = () => {
 
   const onSubmitEmail = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ start loading
     try {
       const { data } = await axios.post(
         backendUrl + "/api/auth/send-reset-otp",
@@ -51,7 +53,9 @@ const ResetPassword = () => {
       data.success ? toast.success(data.message) : toast.error(data.message);
       data.success && setIsEmailSent(true);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   };
 
@@ -110,8 +114,24 @@ const ResetPassword = () => {
             />
           </div>
 
-          <button className=" w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full mt-3">
-            Submit
+          <button
+            type="submit"
+            disabled={loading}
+            className={`relative w-full py-2.5 rounded-full overflow-hidden text-white transition
+        ${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-gradient-to-r from-indigo-500 to-indigo-900"
+        }`}
+          >
+            {loading ? (
+              <>
+                <span className="relative z-10">Sending...</span>
+                <span className="absolute inset-0 bg-indigo-500 animate-pulse"></span>
+              </>
+            ) : (
+              "Submit"
+            )}
           </button>
         </form>
       )}
