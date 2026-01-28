@@ -3,6 +3,10 @@ import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import transporter from "../config/nodemailer.js";
 import "dotenv/config";
+import {
+  EMAIL_VERIFY_TEMPLATE,
+  PASSWORD_RESET_TEMPLATE,
+} from "../config/emailTemplates.js";
 
 /* ================= REGISTER ================= */
 export const register = async (req, res) => {
@@ -149,7 +153,6 @@ export const logout = async (req, res) => {
   }
 };
 
-//---------------  sendVerifyOtp  -------------//
 // Send Verification OTP to the User's Email
 export const sendVerifyOtp = async (req, res) => {
   try {
@@ -189,7 +192,11 @@ export const sendVerifyOtp = async (req, res) => {
       from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Account Verification OTP",
-      text: `Your OTP is ${otp}. It will expire in 24 hours.`,
+      // text: `Your OTP is ${otp}. It will expire in 24 hours.`,
+      html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace(
+        "{{email}}",
+        user.email
+      ),
     };
 
     await transporter.sendMail(mailOptions);
@@ -312,7 +319,11 @@ export const sendResetOtp = async (req, res) => {
       from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Password Reset OTP",
-      text: `Your OTP for resetting your password is ${otp}. It is valid for 15 minutes.`,
+      // text: `Your OTP for resetting your password is ${otp}. It is valid for 15 minutes.`,
+      html: PASSWORD_RESET_TEMPLATE.replace("{{otp}}", otp).replace(
+        "{{email}}",
+        user.email
+      ),
     };
 
     await transporter.sendMail(mailOptions);
