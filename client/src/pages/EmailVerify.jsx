@@ -11,6 +11,7 @@ const EmailVerify = () => {
     useContext(AppContext);
   const navigate = useNavigate();
   const inputRefs = React.useRef([]);
+  const [loading, setLoading] = React.useState(false);
 
   const handleInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
@@ -36,28 +37,30 @@ const EmailVerify = () => {
   };
 
   const onSubmitHandler = async (e) => {
-    try {
-      e.preventDefault();
+    e.preventDefault();
+    setLoading(true);
 
+    try {
       const otpArray = inputRefs.current.map((e) => e.value);
       const otp = otpArray.join("");
 
       const { data } = await axios.post(
         backendUrl + "/api/auth/verify-account",
         { otp },
-        { withCredentials: true } // ✅ IMPORTANT
+        { withCredentials: true }
       );
 
       if (data.success) {
         toast.success(data.message);
-        getUserData();
+        await getUserData();
         navigate("/");
-        console.log("OTP SENT:", otp);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || "OTP verification failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,8 +103,24 @@ const EmailVerify = () => {
               />
             ))}
         </div>
-        <button className=" w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full">
-          Verify email
+        <button
+          type="submit"
+          disabled={loading}
+          className={`relative w-full py-3 rounded-full overflow-hidden text-white transition
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-gradient-to-r from-indigo-500 to-indigo-900"
+    }`}
+        >
+          {loading ? (
+            <>
+              <span className="relative z-10">Verifying...</span>
+              <span className="absolute inset-0 bg-indigo-500 animate-pulse"></span>
+            </>
+          ) : (
+            "Verify email"
+          )}
         </button>
       </form>
     </div>

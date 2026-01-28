@@ -217,12 +217,11 @@ export const sendVerifyOtp = async (req, res) => {
 
 // Verify the Email using the OTP
 export const verifyEmail = async (req, res) => {
-  const userId = req.userId; // ✅ vient du middleware JWT
+  const userId = req.userId;
   const { otp } = req.body;
 
   if (!userId || !otp) {
     return res.status(400).json({
-      success: false,
       message: "OTP is required",
     });
   }
@@ -232,40 +231,61 @@ export const verifyEmail = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        success: false,
         message: "User not found",
       });
     }
 
-    if (!user.verifyOtp || user.verifyOtp !== otp) {
+    if (!user.verifyOtp) {
       return res.status(400).json({
-        success: false,
-        message: "OTP invalid",
+        message: "No OTP found. Please request a new one.",
+      });
+    }
+
+    if (user.verifyOtp !== otp) {
+      return res.status(401).json({
+        message: "Invalid OTP",
       });
     }
 
     if (user.verifyOtpExpireAt < Date.now()) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP expire",
+      return res.status(410).json({
+        message: "OTP expired. Please request a new one.",
       });
     }
 
+    // si la vérification est réussie
     user.isAccountVerified = true;
-    user.verifyOtp = "";
+    user.verifyOtp = null;
     user.verifyOtpExpireAt = null;
-
     await user.save();
+
+    const mailOptions = {
+      from: `"Shining Prism" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "🎉 Your email has been verified!",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Congratulations ${user.name} 🎉</h2>
+          <p>Your email has been <strong>successfully verified</strong>.</p>
+          <p>You can now enjoy all features of <b>Shining Prism</b>.</p>
+          <br />
+          <p>Welcome aboard!</p>
+          <p style="margin-top: 20px;">— The Shining Prism Team</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
 
     return res.status(200).json({
       success: true,
-      message: "Email has been successfully verified",
+      message: "Email verified successfully",
     });
   } catch (error) {
     console.error("VERIFY EMAIL ERROR ❌", error);
+
     return res.status(500).json({
-      success: false,
-      message: "Server error",
+      message: "Internal server error",
     });
   }
 };
@@ -273,7 +293,6 @@ export const verifyEmail = async (req, res) => {
 // Check if user is authentificated
 export const isAuthenticated = (req, res) => {
   try {
-    // Si cette route est atteinte, le middleware a déjà validé le JWT
     return res.status(200).json({
       success: true,
       message: "User is authenticated",
@@ -403,7 +422,6 @@ export const resetPassword = async (req, res) => {
 export const verifyResetOtp = async (req, res) => {
   const { email, otp } = req.body;
 
-  // 400 – données manquantes
   if (!email || !otp) {
     return res.status(400).json({
       success: false,
@@ -414,7 +432,6 @@ export const verifyResetOtp = async (req, res) => {
   try {
     const user = await userModel.findOne({ email });
 
-    // 404 – utilisateur introuvable
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -422,7 +439,6 @@ export const verifyResetOtp = async (req, res) => {
       });
     }
 
-    // 401 – OTP invalide
     if (!user.resetOtp || user.resetOtp !== otp) {
       return res.status(401).json({
         success: false,
@@ -430,7 +446,6 @@ export const verifyResetOtp = async (req, res) => {
       });
     }
 
-    // 410 – OTP expiré
     if (user.resetOtpExpireAt < Date.now()) {
       return res.status(410).json({
         success: false,
@@ -438,7 +453,6 @@ export const verifyResetOtp = async (req, res) => {
       });
     }
 
-    // ✅ OTP valide
     return res.status(200).json({
       success: true,
       message: "OTP verified successfully",
