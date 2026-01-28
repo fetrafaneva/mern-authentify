@@ -387,3 +387,57 @@ export const resetPassword = async (req, res) => {
     });
   }
 };
+
+// Verify Reset Password OTP
+export const verifyResetOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  // 400 – données manquantes
+  if (!email || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and OTP are required",
+    });
+  }
+
+  try {
+    const user = await userModel.findOne({ email });
+
+    // 404 – utilisateur introuvable
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 401 – OTP invalide
+    if (!user.resetOtp || user.resetOtp !== otp) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    // 410 – OTP expiré
+    if (user.resetOtpExpireAt < Date.now()) {
+      return res.status(410).json({
+        success: false,
+        message: "OTP has expired",
+      });
+    }
+
+    // ✅ OTP valide
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    console.error("VERIFY RESET OTP ERROR ", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
