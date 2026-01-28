@@ -61,9 +61,29 @@ const ResetPassword = () => {
 
   const onSubmitOtp = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const otpArray = inputRefs.current.map((e) => e.value);
-    setOtp(otpArray.join(""));
-    setIsOtpSubmited(true);
+    const enteredOtp = otpArray.join("");
+
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/auth/verify-reset-otp",
+        { email, otp: enteredOtp }
+      );
+
+      if (data.success) {
+        toast.success(data.message || "OTP verified");
+        setOtp(enteredOtp); // ✅ stocker l’otp valide
+        setIsOtpSubmited(true); // ✅ passer au form new password
+      } else {
+        toast.error(data.message || "Invalid OTP");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "OTP verification failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onSubmitNewPassword = async (e) => {
@@ -165,8 +185,17 @@ const ResetPassword = () => {
                 />
               ))}
           </div>
-          <button className=" w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full">
-            Submit
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-2.5 rounded-full text-white transition
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-gradient-to-r from-indigo-500 to-indigo-900"
+    }`}
+          >
+            {loading ? "Verifying..." : "Submit"}
           </button>
         </form>
       )}
