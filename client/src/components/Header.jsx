@@ -15,7 +15,9 @@ const Header = () => {
 
       <h1 className=" flex items-center gap-2 text-xl sm:text-3xl font-medium mb-2">
         Hey {userData?.name || "Developer"}
-        <img src={assets.hand_wave} alt="" className=" w-8 aspect-square" />
+        {/*
+          <img src={assets.hand_wave} alt="" className="w-8 aspect-square" />
+        */}
       </h1>
 
       <h2 className=" text-3xl sm:text-5xl font-semibold mb-4">
