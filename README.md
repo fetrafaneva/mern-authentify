@@ -41,25 +41,71 @@ MERN-Authentify is designed to streamline the implementation of user authenticat
 mern-authentify/
 ├── client/                 # Frontend application
 │   ├── src/                # Source code
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Application pages (e.g., Login, Register)
-│   │   ├── assets/         # Static assets (e.g., logos)
-│   │   └── ...             # Other frontend files
+│   │   ├── components/     # Reusable UI components (Header, Navabar)
+│   │   ├── pages/          # Application pages (Login, EmailVerify, Home, ResetPassword)
+│   │   ├── context/        # Global state management (AppContext)
+│   │   ├── assets/         # Static assets (icon, logos)
+│   │   ├── routes/         # Application routing (React Router)
 │   ├── package.json        # Frontend dependencies
-│   └── ...                 # Configuration files (e.g., vite.config.js)
+│   ├── .env                # Frontend environment variables
+│   └── ...                 # Configuration files (e.g., vite.config.js, package.json.lock)
 │
 ├── server/                 # Backend application
-│   ├── config/             # Configuration files (e.g., db connection)
-│   ├── controllers/        # Request handlers
-│   ├── middleware/         # Authentication and validation middleware
-│   ├── models/             # Mongoose schemas (e.g., User model)
-│   ├── routes/             # API routes
-│   ├── utils/              # Utility functions (e.g., email templates)
-│   ├── index.js            # Server entry point
+│   ├── config/             # Configuration files (mongodb.js, nodemailer.js, emailTemplate.js)
+│   ├── controllers/        # Request handlers (authController.js, userController.js)
+│   ├── middleware/         # Authentication and validation middleware (userAuth)
+│   ├── models/             # Mongoose schemas (Usermodel)
+│   ├── routes/             # API routes (authRoutes, userRoutes)
+│   ├── server.js           # Server entry point
 │   ├── package.json        # Backend dependencies
 │   └── ...                 # Other backend files
 │
 ├── .gitignore              # Git ignore rules
-├── package.json            # Root dependencies (if monorepo)
 └── README.md               # Project documentation
+```
+
+
+## Installation
+
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB (local instance or MongoDB Atlas)
+- Email service account (e.g., Gmail with app password for Nodemailer)
+
+### Steps
+1. Clone the repository:
+```text
+git clone https://github.com/fetrafaneva/mern-authentify.git
+cd mern-authentify
+```
+2. Install dependencies:
+```text
+For backend
+cd server
+npm install
+For frontend (in a separate terminal)
+cd ../client
+npm install
+```
+3. Configure environment variables:
+- Create `.env` in `/server`:
+```text
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/mern-auth
+JWT_SECRET=your_secure_jwt_secret
+REFRESH_TOKEN_SECRET=your_secure_refresh_secret
+CLIENT_URL=http://localhost:5173
+EMAIL_USER=your.email@gmail.com
+EMAIL_PASS=your_app_password
+```
+- Create `.env` in `/client`:
+```text
+VITE_BACKEND_URL = 'Your_backend_url'
+```
+4. Start the application:
+```text
+Backend (from /server)
+npm run server (with nodemon)
+Frontend (from /client)
+npm run dev
 ```
