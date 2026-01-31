@@ -2,7 +2,6 @@
 
 A secure, full-stack authentication system built using the MERN stack (MongoDB, Express.js, React, Node.js). This boilerplate provides a robust foundation for user authentication, including email verification and password management.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/node/v/express.svg?color=brightgreen)](https://nodejs.org/en/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 
@@ -17,7 +16,7 @@ MERN-Authentify is designed to streamline the implementation of user authenticat
 - **Password Reset**: Forgot password functionality with secure reset links.
 - **JWT Authentication**: Access and refresh tokens for session management.
 - **Protected Routes**: Middleware for authorizing API endpoints.
-- **Responsive UI**: Modern frontend interface with updated branding (e.g., logo).
+- **Responsive UI**: Modern frontend interface with updated branding.
 - **Environment Configuration**: Support for `.env` files to manage sensitive data.
 
 ## Technology Stack
@@ -26,8 +25,7 @@ MERN-Authentify is designed to streamline the implementation of user authenticat
 - React.js (with Vite for fast development)
 - React Router for navigation
 - Axios for API requests
-- Tailwind CSS or similar for styling
-- Form validation libraries (e.g., React Hook Form, Zod)
+- Tailwind CSS for styling
 
 ### Backend
 - Node.js and Express.js for the server
@@ -38,3 +36,28 @@ MERN-Authentify is designed to streamline the implementation of user authenticat
 - Additional utilities: dotenv, cors, cookie-parser
 
 ## Project Structure
+
+mern-authentify/
+├── client/                 # Frontend application
+│   ├── src/                # Source code
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Application pages (e.g., Login, Register)
+│   │   ├── assets/         # Static assets (e.g., logos)
+│   │   └── ...             # Other frontend files
+│   ├── package.json        # Frontend dependencies
+│   └── ...                 # Configuration files (e.g., vite.config.js)
+│
+├── server/                 # Backend application
+│   ├── config/             # Configuration files (e.g., db connection)
+│   ├── controllers/        # Request handlers
+│   ├── middleware/         # Authentication and validation middleware
+│   ├── models/             # Mongoose schemas (e.g., User model)
+│   ├── routes/             # API routes
+│   ├── utils/              # Utility functions (e.g., email templates)
+│   ├── index.js            # Server entry point
+│   ├── package.json        # Backend dependencies
+│   └── ...                 # Other backend files
+│
+├── .gitignore              # Git ignore rules
+├── package.json            # Root dependencies (if monorepo)
+└── README.md               # Project documentation
