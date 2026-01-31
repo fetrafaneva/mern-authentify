@@ -124,3 +124,19 @@ npm run dev
 | POST   | `/api/auth/verify-reset-otp`| Verify OTP for password reset              | Yes                     |
 | GET    | `/api/auth/is-auth`         | Check if the user is authenticated         | No                      |
 | GET    | `/api/user/data`            | Retrieve authenticated user profile data   | Yes                     |
+
+## Security Practices
+
+- **Password Hashing**: Utilizes bcrypt for secure storage.
+- **Token Management**: Short-lived access tokens with refresh mechanism; tokens stored in HttpOnly cookies.
+- **Input Validation**: Implemented on both client and server sides.
+- **CORS Protection**: Restricted to frontend origin.
+- **Email Security**: Uses secure email transport for verification and resets.
+
+## Demo
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request.
+
+If this project helps you, consider starring the repository!
