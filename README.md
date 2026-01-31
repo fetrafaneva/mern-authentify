@@ -109,3 +109,18 @@ npm run server (with nodemon)
 Frontend (from /client)
 npm run dev
 ```
+
+## API Endpoints
+
+| Method | Endpoint                    | Description                                | Authentication Required |
+|--------|-----------------------------|--------------------------------------------|-------------------------|
+| POST   | `/api/auth/register`        | Register a new user                        | No                      |
+| POST   | `/api/auth/login`           | User login                                 | No                      |
+| POST   | `/api/auth/logout`          | User logout                                | yes                     |
+| POST   | `/api/auth/send-verify-otp` | Send OTP to verify user email              | Yes                     |
+| POST   | `/api/auth/verify-account`  | Verify user account using OTP              | Yes                     |
+| POST   | `/api/auth/send-reset-otp`  | Send OTP for password reset                | No                      |
+| POST   | `/api/auth/reset-password`  | Reset user password after OTP verification | No                      |
+| POST   | `/api/auth/verify-reset-otp`| Verify OTP for password reset              | Yes                     |
+| GET    | `/api/auth/is-auth`         | Check if the user is authenticated         | No                      |
+| GET    | `/api/user/data`            | Retrieve authenticated user profile data   | Yes                     |
