@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
@@ -10,8 +10,11 @@ const Navbar = () => {
   const { userData, backendUrl, setUserData, setIsLoggedin } =
     useContext(AppContext);
 
+  const [loadingVerify, setLoadingVerify] = useState(false); // ✅ loader state
+
   const sendVerificationOtp = async () => {
     try {
+      setLoadingVerify(true); // démarre le loader
       axios.defaults.withCredentials = true;
 
       const { data } = await axios.post(
@@ -19,13 +22,15 @@ const Navbar = () => {
       );
 
       if (data.success) {
-        navigate("/email-verify");
         toast.success(data.message);
+        navigate("/email-verify");
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setLoadingVerify(false); // arrête le loader
     }
   };
 
@@ -34,9 +39,11 @@ const Navbar = () => {
       axios.defaults.withCredentials = true;
 
       const { data } = await axios.post(backendUrl + "/api/auth/logout");
-      data.success && setIsLoggedin(false);
-      data.success && setUserData(null);
-      navigate("/");
+      if (data.success) {
+        setIsLoggedin(false);
+        setUserData(null);
+        navigate("/");
+      }
     } catch (error) {
       toast.error(error.message);
     }
@@ -49,20 +56,42 @@ const Navbar = () => {
       {userData ? (
         <div className="w-8 h-8 flex items-center justify-center rounded-full bg-black text-white relative group">
           {userData.name?.[0]?.toUpperCase()}
-          <div className=" absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-10">
+          <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-10">
             <ul className="list-none m-0 p-2 bg-gray-100 text-sm">
               {!userData.isAccountVerified && (
                 <li
                   onClick={sendVerificationOtp}
-                  className=" py-1 px-2 hover:bg-gray-200 cursor-pointer"
+                  className="py-1 px-2 w-36 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
                 >
-                  Verify email
+                  {loadingVerify ? (
+                    <svg
+                      className="animate-spin h-4 w-4 text-gray-800"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                  ) : null}
+                  <span>Verify email</span>
                 </li>
               )}
 
               <li
                 onClick={logout}
-                className=" py-1 px-2 hover:bg-gray-200 cursor-pointer pr-10"
+                className="py-1 px-2 hover:bg-gray-200 cursor-pointer pr-10"
               >
                 Logout
               </li>
