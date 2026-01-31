@@ -37,6 +37,7 @@ MERN-Authentify is designed to streamline the implementation of user authenticat
 
 ## Project Structure
 
+```text
 mern-authentify/
 ├── client/                 # Frontend application
 │   ├── src/                # Source code
@@ -61,3 +62,4 @@ mern-authentify/
 ├── .gitignore              # Git ignore rules
 ├── package.json            # Root dependencies (if monorepo)
 └── README.md               # Project documentation
+```
