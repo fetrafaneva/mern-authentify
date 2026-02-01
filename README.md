@@ -74,22 +74,22 @@ mern-authentify/
 
 ### Steps
 1. Clone the repository:
-```text
+    ```text
     git clone https://github.com/fetrafaneva/mern-authentify.git
     cd mern-authentify
-```
+    ```
 2. Install dependencies:
-```text
+    ```text
     For backend
     cd server
     npm install
     For frontend (in a separate terminal)
     cd ../client
     npm install
-```
+    ```
 3. Configure environment variables:
 - Create `.env` in `/server`:
-```text
+    ```text
     PORT=5000
 
     MONGO_URI=mongodb://localhost:27017/mern-auth
@@ -103,18 +103,18 @@ mern-authentify/
     EMAIL_USER=your.email@gmail.com
 
     EMAIL_PASS=your_app_password
-```
+    ```
 - Create `.env` in `/client`:
-```text
-VITE_BACKEND_URL = 'Your_backend_url'
-```
+    ```text
+    VITE_BACKEND_URL = 'Your_backend_url'
+    ```
 4. Start the application:
-```text
+    ```text
     Backend (from /server)
     npm run server (with nodemon)
     Frontend (from /client)
     npm run dev
-```
+    ```
 
 ## API Endpoints
 
